@@ -91,9 +91,9 @@ def min_rate_hist(tolldf):
     plt.subplot(312)
     plt.xlabel("Minimum $/Hour Rate Where The Fastest Route Becomes the Cheapest Route")
     plt.ylabel("Number")
-    plt.xlim(-5, 900)
-    plt.ylim(0, 15)
-    bins = np.linspace(0, 1000, 20)
+    plt.xlim(-5, 2300)
+    plt.ylim(0, 13)
+    bins = np.linspace(0, 2500, 51)
     plt.hist(tolldf["Min Rate Tags"], bins, alpha=0.5, color="red",\
      label="Minimum Hrly rate with tags", histtype='step', linewidth=2)
     plt.hist(tolldf["Min Rate Cash"], bins, alpha=0.5, color="blue",\
@@ -117,4 +117,5 @@ def main():
 
     plt.show()
 
-main()
+if __name__ == "__main__":
+    main()

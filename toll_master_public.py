@@ -1,14 +1,13 @@
 """Takes list of the largest cities and generates a series of start and stop locations and
 inputs them into the Toll Guru API."""
 import os.path
+import sys
 from city_set import city_set, extract_count
 from toll_guru_api_series_public import par_set, api_call_write
+from json_delete_empty import check_delete
 
 # Read input cities CSV and LENGTH of city list.
 CITIES, LENGTH = extract_count("top35.csv")
-
-# Readjust limit LENGTH due to 50/day API limit.  This free limit appears to have been removed.
-LENGTH = 33
 
 # Nested for loop for iterating over city list, producing all possible 2-city route
 # combinations (order doesn't matter).
@@ -29,3 +28,7 @@ for x in range(LENGTH-1):
             print(start+" to "+stop)
             Tolls_URL, headers, params = par_set(start, stop)
             api_call_write(Tolls_URL, headers, params, start0, stop0)
+            series_failed = check_delete(start0+stop0+".json")
+            if series_failed:
+                print("API call failed or reached limit.")
+                sys.exit()

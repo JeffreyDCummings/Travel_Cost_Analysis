@@ -12,16 +12,23 @@ def par_set(start, stop):
                'to': {'address': stop},\
 
               # A 2-axle standard auto is used, and this must be changed if a
-              # commercial vehicle or motorcycle is being used.
+              # commercial vehicle or motorcycle is being used.  See:
+              # https://tollguru.com/developers/docs/#vehicle-types 
+              # instead, for the appropriate key word of other vehicle types.
               'vehicleType': '2AxlesAuto',\
 
-              # A unix time for departure is set to September 30th, 2019 at noon
+              # A unix time for departure is set to November 15th, 2019 at noon
               # UTC time.  If this is in the past, current time is used instead.
               'departure_time': '1573837200',\
 
-              # Fuel price is set to $3/gallon and the typical US city and
-              # highway fuel efficiencies are used.
+              # DO NOT CHANGE 'fuelprice' here if you want to apply the json output to
+              # toll_json_open.py or toll_analyzer.py.  These programs assume an input
+              # cost of $3.00/gallon but take an input fuel price of their own to allow
+              # adjustments of fuel price for a given route without having to call the API
+              # again. 
               'fuelPrice': 3.00,\
+              # The typical US city and highway fuel efficiencies for a 2-axle are used,
+              # and do change these rates here if necessary for more personalized calculations.
               'fuelEfficiency': {'city': 23.4, 'hwy': 29.25}\
             }
     return tolls_url, headers, params

@@ -7,8 +7,9 @@ import webbrowser
 import json
 import sys
 
-HOURLY_RATE = 18
-JSON_FILE = "ChicagoILIndianapolisIN.json"
+HOURLY_RATE = 1
+JSON_FILE = "ChicagoILBrooklynNY.json"
+print(JSON_FILE)
 
 #With tags, set to 0, with cash, set to 1
 CASH_OR_TAGS = 0
@@ -17,7 +18,7 @@ GAS_PRICE = 3
 MAINTENANCE = 0.395
 
 #Read json file output by tollguru_api.pyi
-def jsonread(input_file):
+def json_read(input_file):
     """ Read input json file and output to a dataframe. """
     with open(input_file, "r") as read_file:
         return json.load(read_file)
@@ -29,7 +30,8 @@ def correct_nones(check):
     return check
 
 def drive_time(data, route_num):
-    """ For cost calculations, take the output route duration and return it in hours. """
+    """ For cost calculations, take the output route duration in days, hours, minutes and return
+     it in decimal hours. """
     duration_hours = 0
     duration = data["routes"][route_num]["summary"]["duration"]["text"].split()
     if duration[1] == 'd':
@@ -75,7 +77,7 @@ def calc_cost(data):
         total_costs.append(round(toll_cost[route_num]+time_cost[route_num]+drive_costs, 2))
     return toll_cost, time_cost, total_costs, cashpossible, licensepossible
 
-def findminindex(total_costs):
+def find_min_index(total_costs):
     """ Determines which route number is the cheapest. """
     mincost = min(total_costs)
     return total_costs.index(mincost)
@@ -101,13 +103,14 @@ def output(minindex, toll_cost, time_cost, cashpossible, licensepossible, total_
             print("Route "+str(minindex)+" is best for an hourly rate of $"+str(HOURLY_RATE)+\
              " and using license plates")
             print("IMPORTANT: License plate registration may be necessary.")
-    print("Extra Toll and Fuel Costs: $"+str(toll_cost[minindex])+\
-    " (Relative to the Cheapest Route Based on Tolls and Fuel).")
+    print("Extra Toll Costs: $"+str(toll_cost[minindex]-min(toll_cost))+\
+    " (Relative to the Cheapest Route Based on Tolls).")
     print("Extra Time Costs: $"+str(round(time_cost[minindex]-min(time_cost), 2))+\
      " (Relative to the Fastest Route).")
+    print("Total Toll Costs: $"+str(toll_cost[minindex]))
     print("Total Travel Costs: $"+str(total_costs[minindex]))
 
-def googlemapscall(minindex, data):
+def google_maps_call(minindex, data):
     """ Draws googlemaps url from json file for the best route and asks whether or not
       the user wants to display the map. """
     route = data["routes"][minindex]["summary"]["url"]
@@ -115,18 +118,19 @@ def googlemapscall(minindex, data):
     if answer in ["y", "Y", "Yes", "yes", "Sure", "sure", "OK", "ok"]:
         webbrowser.open(route, new=2, autoraise=True)
     else:
-        print("Enjoy Your Trip")
+        print("Enjoy Your Trip!")
 
 def main():
     """ The Main Program Series."""
-    data = jsonread(JSON_FILE)
+    data = json_read(JSON_FILE)
     toll_cost, time_cost, total_costs, cashpossible, licensepossible = calc_cost(data)
-    minindex = findminindex(total_costs)
+    minindex = find_min_index(total_costs)
     if data["routes"][minindex]["summary"]["diffs"]["fastest"] == 0:
         print("Route "+str(minindex)+" is both the fastest route and the cheapest route.")
         print("Total Travel Costs: $"+str(total_costs[minindex]))
     else:
         output(minindex, toll_cost, time_cost, cashpossible, licensepossible, total_costs)
-    googlemapscall(minindex, data)
+        print("Total Travel Time: "+data["routes"][minindex]["summary"]["duration"]["text"])
+    google_maps_call(minindex, data)
 
 main()
