@@ -1,5 +1,5 @@
 # Travel_Cost_Analysis
-Analyze full costs of multiple available city to city routes, and identify which is best under a given scenario.
+Analyze the full costs of multiple available city to city routes, and identify which is best under a given scenario.
 
 Purpose of Program Set:
 
