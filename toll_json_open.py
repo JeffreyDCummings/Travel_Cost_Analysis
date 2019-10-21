@@ -133,4 +133,5 @@ def main():
         print("Total Travel Time: "+data["routes"][minindex]["summary"]["duration"]["text"])
     google_maps_call(minindex, data)
 
-main()
+if __name__ == "__main__":
+    main()

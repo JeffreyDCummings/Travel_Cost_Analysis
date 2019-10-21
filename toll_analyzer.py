@@ -5,6 +5,7 @@ import os.path
 import csv
 import numpy as np
 import pandas as pd
+from toll_json_open import drive_time
 from city_set import city_set, extract_count
 
 np.set_printoptions(suppress=True)
@@ -18,6 +19,7 @@ MAINTENANCE = 0.395
 TOLL_CALC_OUT = "tollcalcdata.csv"
 ONE_ROUTE_OUT = "onlyoneroute.csv"
 POLYLINE_OUT = "fastest_polylines.csv"
+ML_OUT = "ml_data_zero.csv"
 
 
 def csvwrite(dataframe):
@@ -229,10 +231,45 @@ def write_polyline(mincostframe, cities_string, fastroute_polyline):
         write_file = csv.writer(myfile)
         write_file.writerow(polyline)
 
+def write_ml_data(data, cities_string, fastroute, mincostframe):
+    """Write the output data for training the machine learning algorithm."""
+    fast_coord = data["routes"][fastroute[0]]["directions"]
+    if isinstance(mincostframe, int):
+        min_rate_cash, min_rate_tags = 0, 0
+    else:
+        min_rate_cash = mincostframe.iloc[0]["Min Rate Cash"]
+        min_rate_tags = mincostframe.iloc[0]["Min Rate Tags"]
+    if data["routes"][fastroute[0]]["summary"]["hasTolls"]:
+        toll_cost = data["routes"][fastroute[0]]["costs"]["tag"]
+        has_tolls = True
+    else:
+        toll_cost, has_tolls = 0, False
+    route_data = [cities_string, fast_coord[0]["position"]["latitude"],\
+     fast_coord[0]["position"]["longitude"], fast_coord[-1]["position"]["latitude"],\
+     fast_coord[-1]["position"]["longitude"], has_tolls, drive_time(data, fastroute[0]),\
+     float(data["routes"][fastroute[0]]["summary"]["distance"]["text"].split()[0]),\
+     min_rate_tags, min_rate_cash, toll_cost, len(data["routes"]),\
+     data["routes"][fastroute[0]]["costs"]["fuel"]]
+#    route_data_rev = [cities_string+" Rev", fast_coord[-1]["position"]["latitude"],\
+#     fast_coord[-1]["position"]["longitude"], fast_coord[0]["position"]["latitude"],\
+#     fast_coord[0]["position"]["longitude"], has_tolls, drive_time(data, fastroute[0]),\
+#     float(data["routes"][fastroute[0]]["summary"]["distance"]["text"].split()[0]),\
+#     min_rate_tags, min_rate_cash, toll_cost, len(data["routes"]),\
+#     data["routes"][fastroute[0]]["costs"]["fuel"]]
+    with open(ML_OUT, 'a', newline='') as myfile:
+        if os.stat(ML_OUT).st_size == 0:
+            write_file = csv.writer(myfile)
+            write_file.writerow(["Cities", "Start Latitude", "Start Longitude", "Stop Latitude",\
+             "Stop Longitude", "Has Tolls", "Duration", "Distance", "Min Rate Tags",\
+             "Min Rate Cash", "Toll Costs Tags", "Number of Routes", "fuel"])
+        write_file = csv.writer(myfile)
+        write_file.writerow(route_data)
+#        write_file.writerow(route_data_rev)
+
 def main():
     """ Main Program script, which calls the appropriate functions and appends the
      route data to two csv files for the two subclasses of routes."""
-    citylist, length = extract_count("top35.csv")
+    citylist, city_count = extract_count("top35.csv")
 
     if os.path.exists(TOLL_CALC_OUT):
         os.remove(TOLL_CALC_OUT)
@@ -240,9 +277,11 @@ def main():
         os.remove(ONE_ROUTE_OUT)
     if os.path.isfile(POLYLINE_OUT):
         os.remove(POLYLINE_OUT)
+    if os.path.isfile(ML_OUT):
+        os.remove(ML_OUT)
 
-    for start in range(length-1):
-        for stop in range(start+1, length):
+    for start in range(city_count-1):
+        for stop in range(start+1, city_count):
             start_city, stop_city = city_set(citylist, start, stop)
             cities_string = start_city+" to "+stop_city
             cities_file = start_city.replace(" ", "").replace(",", "") +\
@@ -257,9 +296,11 @@ def main():
                 if isinstance(extracost, int):
                     onlyoneroute_write(data, cities_string, fastroute, routeinfo,\
                      fastroute_polyline)
+                    write_ml_data(data, cities_string, fastroute, 0)
                 else:
                     mincost, coltitles = findminindex(np.array(extracost), cheaproute,\
                      fastroute, routeinfo, cash_license_works)
                     mincostframe = write_output(mincost, coltitles, cities_string)
                     write_polyline(mincostframe, cities_string, fastroute_polyline)
+                    write_ml_data(data, cities_string, fastroute, mincostframe)
 main()
