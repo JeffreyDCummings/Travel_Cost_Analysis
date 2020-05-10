@@ -48,9 +48,9 @@ json_delete_empty.py: This program can be called to check the status of an input
 Otherwise, if this program is called directly, it reads in the list of all json files in the current directory and deletes all empty files
 in the directory.
 
-toll_analyzer.py: This is one of the main programs of the file and analyzes all city to city json files available in the current directory
-and outputs 3 csv files (tollcalcdata.csv, onlyoneroute.csv, fastest_polylines.csv).  This file checks for various errors in the json 
-files (see data cleaning discussion below), and performs the route efficiency calculations based on input maintenance costs 
+toll_analyzer_total.py: This is one of the main programs of the file and analyzes all city to city json files available in the current
+directory and outputs 3 csv files (tollcalcdata.csv, onlyoneroute.csv, fastest_polylines.csv).  This file checks for various errors in the
+json files (see data cleaning discussion below), and performs the route efficiency calculations based on input maintenance costs 
 (maintenance+depreciation per mile) and fuel $/gallon.  Additional, a single time cost $/hour is not input, but an upper limit is given 
 (default is $30/hour) and the program calculates a result of the best route for the range of $0/hour to the input upper limit in 
 increments of $1/hour, and this range is calculated for when the driver has toll tags and when the driver is paying with cash/license 
@@ -58,7 +58,10 @@ Plate.  Additionally, statistics are calculated for each individual route for ho
 route is the best, and neither route are the best (within the input $/hour range for both tags/no tags).  Next, the minimum $/hour rate 
 for tags/no tags are calculated for where the fastest (typically most tolls) route is the best/cheapest route factoring in all costs. 
 (This is not affected by the upper limit rate discussed above and consideres possible $/hour rates up to $2500/hour.)  If cash/license 
-payment is not available for the fastest route, a NaN is returned.
+payment is not available for the fastest route, a NaN is returned.  Additionally, toll_true_cost.csv is created, which looks at the 
+average and median route cost of all of the fastest routes going through the toll.  Lastly, ml_data_zero.csv is output, which includes
+all of the key features used in the machine learning analyses of the routes, where an ADD_REVERSE flag is added to decide whether to add
+or not the reverse of each route.
 
 onlyoneroute.csv: For the city to city routes where the fastest route is always the best route (under all hourly rates), these routes 
 typically are toll free and only one "best" route is found, these city to city routes are output to onlyoneroute.csv, are checked for 
