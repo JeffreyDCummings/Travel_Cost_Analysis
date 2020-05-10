@@ -7,7 +7,7 @@ from toll_guru_api_series_public import par_set, api_call_write
 from json_delete_empty import check_delete
 
 # Read input cities CSV and LENGTH of city list.
-CITIES, LENGTH = extract_count("top35.csv")
+CITIES, LENGTH = extract_count("top50edit.csv")
 
 # Nested for loop for iterating over city list, producing all possible 2-city route
 # combinations (order doesn't matter).
