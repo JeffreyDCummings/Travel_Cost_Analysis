@@ -73,9 +73,8 @@ Additionally, all the statistics discussed above are output, and the detailed ro
 including fuel costs, how much more the route costs in terms of maintenance, fuel, and tolls (with tags) relative to the cheapest route 
 (excluding the additional, but variable, time costs).  Therefore, the cheapest route (excluding additional time costs) will always be 
 given a 0.  Next, the time that the trip takes relative to the fastest route is given in minutes.  Therefore, the fastest route will 
-always be given a 0.  Additionally, each routes google maps url is given for visual reference.  Lastly, because cash/license payments are
+always be given a 0.  Additionally, each route's google maps url is given for visual reference.  Lastly, because cash/license payments are
 not always available, in some cases NaNs are returned for the "best route" where no routes are available with cash/license payment.  
-Additionally, for the calculation of the hourly rate where the fastest route becomes the best route
 
 fastest_polylines.csv: Additionally, because it is of interests to check the viability of the fastest route, more detailed information 
 about the fastest route (again, if it's not also the cheapest route) is output to fastest_polylines.csv.  The minimum hourly rate where 
@@ -130,6 +129,11 @@ selected polyline location.  This produces much smaller map file sizes while als
 These output maps are superior in all aspects, but this algorithm is slower (~500 routes in ~7 minutes), hence, I have also included 
 route_maps.py for a more efficient example.
 
+route_xgboost_class.py: This trains a model on the features in ml_data_zero.csv, output by toll_analyzer_total.py.  A hyperparameter
+optmized XGBoost classifier is used, where the costs of the fastest route with tags are grouped into 5 different cost classes.
+Additionally, SMOTE is used to handle the imbalance of classes, where the 0 cost class is the largest.  The current version of this
+program applies a stratified kfold validation of 20 splits to the data, therefore, it only validates the model rather than outputs a
+model.
 
 Concepts and Statistics Addressed/Applied in This Project and Ideas for Future Expansion:
 
