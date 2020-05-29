@@ -1,9 +1,12 @@
+""" This dash proram displays the folium routing maps within a local server for more streamless
+interaction."""
+
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output
 
-# plotly plot embed urls
+# plotly plot embed html maps
 HTMLS = {
     'Cash - Cheap Routes (The cost of the time you are saving: < $15/hr)': open('mapcashcheap.html', 'r').read(),
     'Cash - Mid Routes ($15/hr to $100/hr)': open('mapcashmid.html', 'r').read(),
@@ -39,6 +42,7 @@ app.layout = html.Div(children=[dd, plot])
  [Input(component_id='dropdown', component_property='value')])
 
 def update_plot_srcdoc(input_value):
+    """ Updates the srcdoc. """
     return input_value
 
 if __name__ == '__main__':
